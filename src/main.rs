@@ -85,14 +85,16 @@ impl GameBlock{
     fn coords(&self) -> [i32;2] {
         [self.rectangle.x()/BLOCK_SIZE as i32, self.rectangle.y()/BLOCK_SIZE as i32]
     }
+
+    fn add_snake_block(coordinates: [i32; 2])-> GameBlock {
+        GameBlock {rectangle: Rect::new(coordinates[0]*BLOCK_SIZE as i32, coordinates[1] *BLOCK_SIZE as i32, BLOCK_SIZE, BLOCK_SIZE), color: SNAKE_COLOR}
+    }
+    fn add_apple(coordinates: [i32; 2])-> GameBlock {
+        GameBlock {rectangle: Rect::new(coordinates[0]*BLOCK_SIZE as i32, coordinates[1] *BLOCK_SIZE as i32, BLOCK_SIZE, BLOCK_SIZE), color: RED}
+    }
+
 }
 
-fn add_snake_block(coordinates: [i32; 2])-> GameBlock {
-    GameBlock {rectangle: Rect::new(coordinates[0]*BLOCK_SIZE as i32, coordinates[1] *BLOCK_SIZE as i32, BLOCK_SIZE, BLOCK_SIZE), color: SNAKE_COLOR}
-}
-fn add_apple(coordinates: [i32; 2])-> GameBlock {
-    GameBlock {rectangle: Rect::new(coordinates[0]*BLOCK_SIZE as i32, coordinates[1] *BLOCK_SIZE as i32, BLOCK_SIZE, BLOCK_SIZE), color: RED}
-}
 
 
 
@@ -112,10 +114,10 @@ impl SnakePlayer {
     //Player movement done by popping tail and making new head
     fn move_player(&mut self, direction: &Direction) {
         match direction {
-            Direction::UP => self.body_parts.push_front(add_snake_block([self.body_parts[0].coords()[0], self.body_parts[0].coords()[1] - 1])),
-            Direction::DOWN => self.body_parts.push_front(add_snake_block([self.body_parts[0].coords()[0], self.body_parts[0].coords()[1] + 1])),
-            Direction::LEFT => self.body_parts.push_front(add_snake_block([self.body_parts[0].coords()[0] - 1, self.body_parts[0].coords()[1]])),
-            Direction::RIGHT => self.body_parts.push_front(add_snake_block([self.body_parts[0].coords()[0] + 1, self.body_parts[0].coords()[1]]))
+            Direction::UP => self.body_parts.push_front(GameBlock::add_snake_block([self.body_parts[0].coords()[0], self.body_parts[0].coords()[1] - 1])),
+            Direction::DOWN => self.body_parts.push_front(GameBlock::add_snake_block([self.body_parts[0].coords()[0], self.body_parts[0].coords()[1] + 1])),
+            Direction::LEFT => self.body_parts.push_front(GameBlock::add_snake_block([self.body_parts[0].coords()[0] - 1, self.body_parts[0].coords()[1]])),
+            Direction::RIGHT => self.body_parts.push_front(GameBlock::add_snake_block([self.body_parts[0].coords()[0] + 1, self.body_parts[0].coords()[1]]))
         }
         // If grow is set (after eating apple), tail is not popped and snake grows by one block
         if !self.set_grow{
@@ -169,13 +171,13 @@ fn main() {
     let mut current_direction = Direction::LEFT;
 
     for i in 0..=2{    //initialize a snake with 3 bodyparts
-        player.body_parts.push_back(add_snake_block([10+i, 5]));
+        player.body_parts.push_back(GameBlock::add_snake_block([10+i, 5]));
     }
 
     //initialize first apple add random unoccupied location
     let mut apple;
     loop{
-        apple = add_apple(rand_grid_point());
+        apple = GameBlock::add_apple(rand_grid_point());
         for body_part in player.body_parts.iter(){
             if body_part.coords() == apple.coords() {
                 continue;
@@ -236,7 +238,7 @@ fn main() {
         if player.body_parts[0].coords() == apple.coords() {
             player.set_grow = true;     //Set player_grow to true after apple is eaten
             'occupied: loop{
-                apple = add_apple(rand_grid_point());
+                apple = GameBlock::add_apple(rand_grid_point());
                 for body_part in player.body_parts.iter(){
                     if body_part.coords() == apple.coords() {
                         continue 'occupied;
